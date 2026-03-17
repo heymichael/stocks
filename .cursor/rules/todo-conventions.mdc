@@ -1,0 +1,44 @@
+---
+description: Task management conventions using taskmd
+alwaysApply: true
+---
+
+# Task Management (taskmd)
+
+Tasks live in `tasks/` as individual markdown files with YAML frontmatter. Managed via [taskmd](https://github.com/driangle/taskmd).
+
+## Reading tasks for context
+
+When looking for work or understanding project priorities, only read tasks where `status` is `pending` or `in-progress`. Ignore `completed`, `cancelled`, and `blocked` tasks unless specifically asked about them.
+
+## Task file format
+
+Each task is a standalone `.md` file with YAML frontmatter:
+
+```yaml
+---
+id: "001"
+title: "Short descriptive title"
+status: pending          # pending | in-progress | in-review | completed | blocked | cancelled
+priority: medium         # low | medium | high | critical
+type: feature            # feature | bug | improvement | chore | docs
+tags: [relevant, tags]
+dependencies: ["003"]    # optional: IDs of tasks that must complete first
+effort: medium           # optional: small | medium | large
+created: YYYY-MM-DD
+---
+```
+
+The markdown body should include Purpose/Objective and Approach/Acceptance Criteria sections.
+
+## Creating a task
+
+Use descriptive filenames: `ID-short-slug.md` (e.g., `007-add-caching-layer.md`). Use sequential IDs zero-padded to 3 digits.
+
+## Completing a task
+
+Set `status: completed` in the frontmatter. Do not delete the file.
+
+## No regeneration required
+
+Unlike the previous todo.md workflow, changes to task files do not require running any generation or sync scripts.
