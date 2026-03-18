@@ -18,13 +18,17 @@ stocks/
 │   ├── Dockerfile
 │   └── requirements.txt
 ├── src/                  # React SPA source
+│   ├── auth/             # Firebase Auth gate
+│   │   ├── accessPolicy.ts
+│   │   ├── AuthGate.tsx
+│   │   └── runtimeConfig.ts
 │   ├── App.tsx
 │   ├── Controls.tsx
 │   ├── PriceChart.tsx
 │   ├── PriceTable.tsx
 │   ├── types.ts
+│   ├── vite-env.d.ts
 │   └── main.tsx
-├── tasks/                # taskmd task tracking
 ├── firebase.json         # Local dev config
 ├── package.json
 ├── vite.config.ts
@@ -36,11 +40,14 @@ stocks/
 ### Frontend
 
 ```bash
+cp .env.example .env.local   # fill in VITE_FIREBASE_* values (or set VITE_AUTH_BYPASS=true)
 npm ci
 npm run dev
 ```
 
 Opens at `http://localhost:5173/stocks/`. The Vite dev server proxies `/stocks/api/*` to `localhost:5001`.
+
+To skip the auth gate during local development, set `VITE_AUTH_BYPASS=true` in `.env.local` or append `?authBypass=1` to the URL.
 
 ### Backend (API service)
 
