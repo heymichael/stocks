@@ -41,9 +41,15 @@ stocks/
 │   ├── app.py
 │   ├── Dockerfile
 │   └── requirements.txt
+├── scripts/              # Build and publish scripts
+│   ├── package-artifacts.sh   # Tar dist/ + checksums
+│   └── generate-manifest.mjs # Produce manifest.json for platform contract
 ├── docs/                 # Internal docs (this file)
 ├── .cursor/rules/        # AI conventions
-├── .github/              # PR template, workflows
+├── .github/
+│   ├── pull_request_template.md
+│   └── workflows/
+│       └── publish-artifact.yml  # Build, package, upload to GCS on push to main
 ├── vite.config.ts        # base: /stocks/, proxy for local dev
 ├── firebase.json         # Local hosting emulator config
 └── package.json
@@ -97,6 +103,5 @@ Config is read from `VITE_FIREBASE_*` env vars at build time (see `.env.example`
 
 ## Deferred
 
-- CI/CD workflows (adapt from card app)
 - Analytics (Firebase Analytics)
 - E2E tests

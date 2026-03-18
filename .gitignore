@@ -32,4 +32,5 @@ firebase-debug.log
 tmp/
 dist/
 build/
+artifacts/
 node_modules/
