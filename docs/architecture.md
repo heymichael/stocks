@@ -32,12 +32,16 @@ Browser
 ```
 stocks/
 ├── src/                  # React + Vite SPA (TypeScript)
+│   ├── auth/             # Firebase Auth gate
+│   │   ├── accessPolicy.ts   # Email/domain allowlist
+│   │   ├── AuthGate.tsx       # Auth gate component
+│   │   └── runtimeConfig.ts   # Firebase config from VITE_* env vars
+│   └── ...
 ├── service/              # Cloud Run FastAPI service
 │   ├── app.py
 │   ├── Dockerfile
 │   └── requirements.txt
 ├── docs/                 # Internal docs (this file)
-├── tasks/                # taskmd tracking
 ├── .cursor/rules/        # AI conventions
 ├── .github/              # PR template, workflows
 ├── vite.config.ts        # base: /stocks/, proxy for local dev
@@ -73,15 +77,26 @@ stocks/
 
 The Vite dev server proxies `/stocks/api/*` to `localhost:5001` where the FastAPI service runs via uvicorn. This mirrors the production routing topology without needing Firebase Hosting rewrites locally.
 
+## Authentication
+
+Firebase Auth gate wraps the SPA. Only authorized users (by email or domain allowlist) can access the app.
+
+- **Sign-in:** Google sign-in via `signInWithPopup`, with `prompt: 'select_account'` to force account picker
+- **Allowlist:** Checked client-side in `src/auth/accessPolicy.ts` (emails + `@haderach.ai` domain)
+- **Bypass:** `VITE_AUTH_BYPASS=true` or `?authBypass=1` query param skips auth (local dev)
+- **Persistence:** `browserLocalPersistence` — sessions survive tab close
+
+Config is read from `VITE_FIREBASE_*` env vars at build time (see `.env.example`).
+
 ## Security
 
 - Default `noindex, nofollow, noarchive` on all responses
 - API key never exposed to client; all Massive API calls go through the Cloud Run proxy
 - Cloud Run service uses Secret Manager for `MASSIVE_API_KEY`
+- Firebase Auth gate restricts SPA access to allowlisted users
 
 ## Deferred
 
 - CI/CD workflows (adapt from card app)
-- Auth gate (Firebase Auth)
 - Analytics (Firebase Analytics)
 - E2E tests
