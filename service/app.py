@@ -29,7 +29,7 @@ async def fx_range(
     date_from: str = Query("", alias="from"),
     date_to: str = Query("", alias="to"),
 ):
-    api_key = os.environ.get("MASSIVE_API_KEY")
+    api_key = os.environ.get("MASSIVE_API_KEY", "").strip()
     if not api_key:
         return JSONResponse(
             {"error": "Server misconfiguration",
@@ -112,8 +112,15 @@ async def fx_range(
             status_code=502,
         )
 
-    rows = _parse_response(raw, date_from)
-    rows.sort(key=lambda r: r["date"])
+    try:
+        rows = _parse_response(raw, date_from)
+        rows.sort(key=lambda r: r["date"])
+    except Exception as exc:
+        return JSONResponse(
+            {"error": "Failed to parse upstream response",
+             "details": str(exc)},
+            status_code=502,
+        )
 
     return {
         "ticker": ticker,
