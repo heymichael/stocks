@@ -11,7 +11,7 @@ import {
   signOut,
   type User,
 } from 'firebase/auth'
-import { isAuthorizedEmail } from './accessPolicy'
+import { fetchAllowlist, isAuthorizedEmail } from './accessPolicy'
 import { getAuthRuntimeConfig } from './runtimeConfig'
 
 interface AuthGateProps {
@@ -62,11 +62,14 @@ export function AuthGate({ children }: AuthGateProps) {
         setStatus('signed_out')
         return
       }
-      if (isAuthorizedEmail(nextUser.email)) {
-        setStatus('authorized')
-      } else {
-        setStatus('unauthorized')
-      }
+      setStatus('loading')
+      fetchAllowlist(app).then((policy) => {
+        if (isAuthorizedEmail(nextUser.email, policy)) {
+          setStatus('authorized')
+        } else {
+          setStatus('unauthorized')
+        }
+      })
     })
     setPersistence(auth, browserLocalPersistence).catch((error) => {
       setAuthError(error instanceof Error ? error.message : 'Failed to set auth persistence.')
