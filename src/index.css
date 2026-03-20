@@ -1,8 +1,9 @@
 @import "tailwindcss";
+@import "@haderach/shared-ui/theme";
 @source "../../haderach-home/packages/shared-ui/src";
 
 @theme {
-  --color-background: oklch(0.97 0 0);
+  --color-background: oklch(1 0 0);
   --color-foreground: oklch(0.2 0 0);
   --color-surface: oklch(1 0 0);
   --color-surface-alt: oklch(0.98 0 0);
@@ -43,22 +44,16 @@
   --color-text-muted: oklch(0.6 0 0);
 
   --color-auth-primary: oklch(0.61 0.17 264);
+
+  --font-sans: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, Helvetica, Arial, sans-serif;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    Helvetica, Arial, sans-serif;
-  background: var(--color-background);
-  color: var(--color-foreground);
-  line-height: 1.5;
+@layer base {
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+  }
 }
 
 .auth-gate-shell {

@@ -30,6 +30,14 @@ function platformAuthDev(): Plugin {
         }
 
         const urlPath = req.url?.split('?')[0]
+
+        if (urlPath?.startsWith('/assets/')) {
+          const homePort = env.VITE_HOME_DEV_PORT || '5173'
+          res.writeHead(302, { Location: `http://localhost:${homePort}${req.url}` })
+          res.end()
+          return
+        }
+
         if (urlPath === '/' || urlPath === '') {
           const homePort = env.VITE_HOME_DEV_PORT || '5173'
           const query = req.url?.includes('?') ? req.url.slice(req.url.indexOf('?')) : ''
@@ -55,6 +63,9 @@ export default defineConfig({
     },
   },
   server: {
+    fs: {
+      allow: ['.', '../haderach-home'],
+    },
     proxy: {
       '/stocks/api': {
         target: 'http://localhost:5001',

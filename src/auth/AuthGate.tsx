@@ -9,8 +9,9 @@ import {
   signOut,
   type User,
 } from 'firebase/auth'
-import { fetchUserRoles, hasAppAccess } from './accessPolicy'
+import { fetchUserRoles, hasAppAccess, getAccessibleApps, APP_CATALOG } from './accessPolicy'
 import { getAuthRuntimeConfig } from './runtimeConfig'
+import { AuthUserContext } from './AuthUserContext'
 import { Button } from '@haderach/shared-ui'
 
 const PLATFORM_SIGN_IN_URL = '/'
@@ -36,6 +37,7 @@ type AuthStatus = 'loading' | 'redirecting' | 'authorized' | 'unauthorized' | 'c
 export function AuthGate({ children }: AuthGateProps) {
   const runtimeConfig = useMemo(() => getAuthRuntimeConfig(), [])
   const [user, setUser] = useState<User | null>(null)
+  const [roles, setRoles] = useState<string[]>([])
   const [status, setStatus] = useState<AuthStatus>(() => {
     if (runtimeConfig.bypassAuth) {
       return 'authorized'
@@ -67,8 +69,9 @@ export function AuthGate({ children }: AuthGateProps) {
         return
       }
       setStatus('loading')
-      fetchUserRoles(app, nextUser.email ?? '').then((roles) => {
-        if (hasAppAccess(roles)) {
+      fetchUserRoles(app, nextUser.email ?? '').then((fetchedRoles) => {
+        setRoles(fetchedRoles)
+        if (hasAppAccess(fetchedRoles)) {
           setStatus('authorized')
         } else {
           setStatus('unauthorized')
@@ -94,7 +97,18 @@ export function AuthGate({ children }: AuthGateProps) {
   }
 
   if (status === 'authorized') {
-    return <>{children}</>
+    const accessibleApps = runtimeConfig.bypassAuth ? APP_CATALOG : getAccessibleApps(roles)
+    return (
+      <AuthUserContext.Provider
+        value={{
+          email: user?.email ?? (runtimeConfig.bypassAuth ? 'dev@haderach.ai' : ''),
+          accessibleApps,
+          signOut: signOutCurrentUser,
+        }}
+      >
+        {children}
+      </AuthUserContext.Provider>
+    )
   }
 
   if (status === 'loading' || status === 'redirecting') {
