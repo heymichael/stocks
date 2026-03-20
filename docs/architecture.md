@@ -32,9 +32,9 @@ Browser
 ```
 stocks/
 ├── src/                  # React + Vite SPA (TypeScript)
-│   ├── auth/             # Firebase Auth gate
-│   │   ├── accessPolicy.ts   # Email/domain allowlist
-│   │   ├── AuthGate.tsx       # Auth gate component
+│   ├── auth/             # Firebase Auth gate (platform-delegated sign-in)
+│   │   ├── accessPolicy.ts   # RBAC role fetch and permission check
+│   │   ├── AuthGate.tsx       # Auth gate component (redirects to platform for sign-in)
 │   │   └── runtimeConfig.ts   # Firebase config from VITE_* env vars
 │   └── ...
 ├── service/              # Cloud Run FastAPI service
@@ -83,14 +83,21 @@ stocks/
 
 The Vite dev server proxies `/stocks/api/*` to `localhost:5001` where the FastAPI service runs via uvicorn. This mirrors the production routing topology without needing Firebase Hosting rewrites locally.
 
-## Authentication
+## Authentication (Phase 2 — Platform Auth + RBAC)
 
-Firebase Auth gate wraps the SPA. Only authorized users (by email or domain allowlist) can access the app.
+Authentication is centralized at the platform level. This app does not handle
+sign-in directly.
 
-- **Sign-in:** Google sign-in via `signInWithPopup`, with `prompt: 'select_account'` to force account picker
-- **Allowlist:** Checked client-side in `src/auth/accessPolicy.ts` (emails + `@haderach.ai` domain)
-- **Bypass:** `VITE_AUTH_BYPASS=true` or `?authBypass=1` query param skips auth (local dev)
-- **Persistence:** `browserLocalPersistence` — sessions survive tab close
+- **Sign-in:** Handled by the platform landing page at `haderach.ai/`. If no
+  Firebase Auth session exists, the app redirects to `/?returnTo=/stocks/`.
+- **Authorization:** Role-based access control (RBAC). User roles are stored in
+  Firestore `users/{email}` documents. Access is granted if the user holds any
+  role in `APP_GRANTING_ROLES['stocks']` (`admin`, `member`, `stocks_member`).
+- **Unauthorized:** Access-denied screen with sign-out option.
+- **Bypass:** `VITE_AUTH_BYPASS=true` or `?authBypass=1` query param skips auth (local dev).
+- **Persistence:** `browserLocalPersistence` — sessions survive tab close (shared
+  across all apps on `haderach.ai` via same-origin IndexedDB).
+- **Fail-closed:** If Firestore is unreachable, roles resolve to empty and access is denied.
 
 Config is read from `VITE_FIREBASE_*` env vars at build time (see `.env.example`).
 
@@ -99,7 +106,7 @@ Config is read from `VITE_FIREBASE_*` env vars at build time (see `.env.example`
 - Default `noindex, nofollow, noarchive` on all responses
 - API key never exposed to client; all Massive API calls go through the Cloud Run proxy
 - Cloud Run service uses Secret Manager for `MASSIVE_API_KEY`
-- Firebase Auth gate restricts SPA access to allowlisted users
+- Firebase Auth gate restricts SPA access to users with appropriate RBAC roles
 
 ## Deferred
 

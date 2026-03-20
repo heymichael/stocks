@@ -4,15 +4,16 @@ import { initializeApp, getApp, getApps, type FirebaseApp } from 'firebase/app'
 import {
   browserLocalPersistence,
   getAuth,
-  GoogleAuthProvider,
   onAuthStateChanged,
   setPersistence,
-  signInWithPopup,
   signOut,
   type User,
 } from 'firebase/auth'
-import { fetchAllowlist, isAuthorizedEmail } from './accessPolicy'
+import { fetchUserRoles, hasAppAccess } from './accessPolicy'
 import { getAuthRuntimeConfig } from './runtimeConfig'
+
+const PLATFORM_SIGN_IN_URL = '/'
+const APP_PATH = '/stocks/'
 
 interface AuthGateProps {
   children: ReactNode
@@ -29,7 +30,7 @@ function getFirebaseAppInstance(): FirebaseApp | null {
   return initializeApp(runtimeConfig.firebaseConfig)
 }
 
-type AuthStatus = 'loading' | 'signed_out' | 'authorized' | 'unauthorized' | 'config_error'
+type AuthStatus = 'loading' | 'redirecting' | 'authorized' | 'unauthorized' | 'config_error'
 
 export function AuthGate({ children }: AuthGateProps) {
   const runtimeConfig = useMemo(() => getAuthRuntimeConfig(), [])
@@ -43,7 +44,6 @@ export function AuthGate({ children }: AuthGateProps) {
     }
     return 'loading'
   })
-  const [authError, setAuthError] = useState<string | null>(null)
   const [authBusy, setAuthBusy] = useState(false)
 
   useEffect(() => {
@@ -59,44 +59,24 @@ export function AuthGate({ children }: AuthGateProps) {
     const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
       setUser(nextUser)
       if (!nextUser) {
-        setStatus('signed_out')
+        setStatus('redirecting')
+        window.location.replace(
+          `${PLATFORM_SIGN_IN_URL}?returnTo=${encodeURIComponent(APP_PATH)}`,
+        )
         return
       }
       setStatus('loading')
-      fetchAllowlist(app).then((policy) => {
-        if (isAuthorizedEmail(nextUser.email, policy)) {
+      fetchUserRoles(app, nextUser.email ?? '').then((roles) => {
+        if (hasAppAccess(roles)) {
           setStatus('authorized')
         } else {
           setStatus('unauthorized')
         }
       })
     })
-    setPersistence(auth, browserLocalPersistence).catch((error) => {
-      setAuthError(error instanceof Error ? error.message : 'Failed to set auth persistence.')
-    })
+    setPersistence(auth, browserLocalPersistence).catch(() => {})
     return unsubscribe
   }, [runtimeConfig.bypassAuth, runtimeConfig.configError])
-
-  const signIn = async () => {
-    const app = getFirebaseAppInstance()
-    if (!app) {
-      setStatus('config_error')
-      return
-    }
-    setAuthBusy(true)
-    setAuthError(null)
-    try {
-      const auth = getAuth(app)
-      const provider = new GoogleAuthProvider()
-      provider.setCustomParameters({ prompt: 'select_account' })
-      await signInWithPopup(auth, provider)
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Sign in failed.'
-      setAuthError(message)
-    } finally {
-      setAuthBusy(false)
-    }
-  }
 
   const signOutCurrentUser = async () => {
     const app = getFirebaseAppInstance()
@@ -119,38 +99,39 @@ export function AuthGate({ children }: AuthGateProps) {
   return (
     <main className="auth-gate-shell">
       <section className="auth-gate-card" aria-live="polite">
-        <h1>Sign in required</h1>
         {status === 'config_error' ? (
-          <p>
-            Authentication is unavailable because runtime configuration is missing. Please contact
-            your administrator.
-          </p>
+          <>
+            <h1>Unavailable</h1>
+            <p>
+              Authentication is unavailable because runtime configuration is missing. Please contact
+              your administrator.
+            </p>
+          </>
         ) : status === 'unauthorized' ? (
           <>
+            <h1>Access denied</h1>
             <p>
-              You are signed in as <strong>{user?.email || 'unknown user'}</strong>, but this account
-              is not on the allow list.
+              You are signed in as <strong>{user?.email || 'unknown user'}</strong>, but your
+              account does not have access to this application.
             </p>
-            <p>Please contact your administrator to be added to the list.</p>
+            <p>Please contact your administrator to be granted access.</p>
+            <div className="auth-gate-actions">
+              <button onClick={signOutCurrentUser} disabled={authBusy}>
+                Sign out
+              </button>
+            </div>
+          </>
+        ) : status === 'redirecting' ? (
+          <>
+            <h1>Redirecting</h1>
+            <p>Redirecting to sign in&hellip;</p>
           </>
         ) : (
           <>
-            <p>Sign in with your Google account to continue.</p>
-            <p>Please contact your administrator if you need access.</p>
+            <h1>Loading</h1>
+            <p>Checking access&hellip;</p>
           </>
         )}
-        {authError ? <p className="auth-gate-error">Authentication error: {authError}</p> : null}
-        <div className="auth-gate-actions">
-          {status === 'unauthorized' ? (
-            <button onClick={signOutCurrentUser} disabled={authBusy}>
-              Sign out
-            </button>
-          ) : (
-            <button onClick={signIn} disabled={authBusy || status === 'config_error'}>
-              Sign in with Google
-            </button>
-          )}
-        </div>
       </section>
     </main>
   )
