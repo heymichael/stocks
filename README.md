@@ -18,9 +18,9 @@ stocks/
 │   ├── Dockerfile
 │   └── requirements.txt
 ├── src/                  # React SPA source
-│   ├── auth/             # Firebase Auth gate
-│   │   ├── accessPolicy.ts
-│   │   ├── AuthGate.tsx
+│   ├── auth/             # Platform-delegated auth gate (RBAC)
+│   │   ├── accessPolicy.ts   # Role fetch and permission check
+│   │   ├── AuthGate.tsx       # Redirects to platform for sign-in
 │   │   └── runtimeConfig.ts
 │   ├── App.tsx
 │   ├── Controls.tsx
@@ -46,6 +46,8 @@ npm run dev
 ```
 
 Opens at `http://localhost:5173/stocks/`. The Vite dev server proxies `/stocks/api/*` to `localhost:5001`.
+
+Authentication is centralized at the platform level. This app redirects unauthenticated users to the platform landing page for sign-in, then checks RBAC roles from the Firestore `users/{email}` collection. With Firebase config populated and `VITE_AUTH_BYPASS=false`, the Vite dev server serves the platform landing page at `/` (via a dev-only plugin), enabling the full sign-in + RBAC flow locally.
 
 To skip the auth gate during local development, set `VITE_AUTH_BYPASS=true` in `.env.local` or append `?authBypass=1` to the URL.
 
