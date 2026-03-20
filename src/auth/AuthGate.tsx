@@ -11,6 +11,7 @@ import {
 } from 'firebase/auth'
 import { fetchUserRoles, hasAppAccess } from './accessPolicy'
 import { getAuthRuntimeConfig } from './runtimeConfig'
+import { Button } from '@haderach/shared-ui'
 
 const PLATFORM_SIGN_IN_URL = '/'
 const APP_PATH = '/stocks/'
@@ -120,9 +121,9 @@ export function AuthGate({ children }: AuthGateProps) {
             </p>
             <p>Please contact your administrator to be granted access.</p>
             <div className="auth-gate-actions">
-              <button onClick={signOutCurrentUser} disabled={authBusy}>
+              <Button onClick={signOutCurrentUser} disabled={authBusy}>
                 Sign out
-              </button>
+              </Button>
             </div>
           </>
         )}
