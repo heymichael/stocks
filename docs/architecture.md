@@ -35,6 +35,7 @@ stocks/
 │   ├── auth/             # Firebase Auth gate (platform-delegated sign-in)
 │   │   ├── accessPolicy.ts   # RBAC role fetch and permission check
 │   │   ├── AuthGate.tsx       # Auth gate component (redirects to platform for sign-in)
+│   │   ├── AuthUserContext.ts # React context for authenticated user state
 │   │   └── runtimeConfig.ts   # Firebase config from VITE_* env vars
 │   └── ...
 ├── service/              # Cloud Run FastAPI service
