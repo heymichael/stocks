@@ -1,7 +1,9 @@
 import { useState, useCallback } from 'react';
+import { GlobalNav } from '@haderach/shared-ui';
 import { Controls } from './Controls';
 import { PriceChart } from './PriceChart';
 import { PriceTable } from './PriceTable';
+import { useAuthUser } from './auth/AuthUserContext';
 import { TICKERS } from './types';
 import type { FxRow, FxRangeResponse, FxErrorResponse } from './types';
 import './App.css';
@@ -73,8 +75,23 @@ export function App() {
     }
   }, [ticker, dateFrom, dateTo]);
 
+  const authUser = useAuthUser();
+
   return (
     <div className="app">
+      <GlobalNav
+        apps={authUser.accessibleApps}
+        activeAppId="stocks"
+        userEmail={authUser.email}
+        onSignOut={authUser.signOut}
+        logo={
+          <img
+            className="h-12 w-auto"
+            src="/assets/landing/logo.svg"
+            alt="Haderach"
+          />
+        }
+      />
       <div className="top-pane">
         <div className="container">
           <h1>Closing Prices</h1>

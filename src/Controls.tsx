@@ -1,4 +1,13 @@
 import { TICKERS } from './types'
+import {
+  Button,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@haderach/shared-ui'
 
 interface ControlsProps {
   ticker: string;
@@ -25,21 +34,22 @@ export function Controls({
     <div className="controls">
       <div className="control-group">
         <label htmlFor="ticker-select">Ticker</label>
-        <select
-          id="ticker-select"
-          value={ticker}
-          onChange={(e) => onTickerChange(e.target.value)}
-        >
-          {TICKERS.map((t) => (
-            <option key={t.value} value={t.value}>
-              {t.label}
-            </option>
-          ))}
-        </select>
+        <Select value={ticker} onValueChange={onTickerChange}>
+          <SelectTrigger id="ticker-select" className="w-[140px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {TICKERS.map((t) => (
+              <SelectItem key={t.value} value={t.value}>
+                {t.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div className="control-group">
         <label htmlFor="date-from">From</label>
-        <input
+        <Input
           type="date"
           id="date-from"
           value={dateFrom}
@@ -48,7 +58,7 @@ export function Controls({
       </div>
       <div className="control-group">
         <label htmlFor="date-to">To</label>
-        <input
+        <Input
           type="date"
           id="date-to"
           value={dateTo}
@@ -57,9 +67,9 @@ export function Controls({
       </div>
       <div className="control-group">
         <label>&nbsp;</label>
-        <button onClick={onFetch} disabled={loading}>
+        <Button onClick={onFetch} disabled={loading}>
           {loading ? 'Loading…' : 'Fetch'}
-        </button>
+        </Button>
       </div>
     </div>
   );
