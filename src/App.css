@@ -1,55 +1,21 @@
-.app {
-  min-height: 100vh;
+.app-shell {
+  --header-height: calc(3rem + 1.5rem + 1px);
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
-.top-pane {
-  flex-shrink: 0;
-  background: var(--color-background);
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: 1rem;
+/* Offset the fixed sidebar below the GlobalNav */
+.app-shell [data-slot="sidebar-container"] {
+  top: var(--header-height);
+  height: calc(100svh - var(--header-height));
 }
 
-.bottom-pane {
+.display-panel {
   flex: 1;
-  padding-top: 1.5rem;
-  padding-bottom: 2rem;
-}
-
-.container {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-.top-pane .container {
-  padding-top: 3rem;
-}
-
-h1 {
-  margin-bottom: 1.5rem;
-}
-
-/* Controls */
-.controls {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-bottom: 1.5rem;
-}
-
-.control-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.control-group label {
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: var(--color-muted-foreground);
+  overflow-y: auto;
+  padding: 1.5rem;
 }
 
 /* Error */
@@ -58,7 +24,7 @@ h1 {
   color: var(--color-error);
   padding: 0.75rem 1rem;
   border-radius: 4px;
-  margin-bottom: 1rem;
+  margin-top: 0.5rem;
 }
 
 /* Chart */
@@ -67,7 +33,7 @@ h1 {
   border: 1px solid var(--color-border);
   border-radius: 6px;
   padding: 1rem;
-  margin-top: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 /* Table */
