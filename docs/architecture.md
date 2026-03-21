@@ -46,7 +46,11 @@ stocks/
 │   ├── package-artifacts.sh   # Tar dist/ + checksums
 │   └── generate-manifest.mjs # Produce manifest.json for platform contract
 ├── docs/                 # Internal docs (this file)
-├── .cursor/rules/        # AI conventions
+├── .cursor/
+│   ├── rules/            # AI conventions
+│   └── skills/
+│       └── brand-guidelines/
+│           └── SKILL.md  # AI brand/token governance
 ├── .github/
 │   ├── pull_request_template.md
 │   └── workflows/
