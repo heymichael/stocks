@@ -83,6 +83,8 @@ export function App() {
         apps={authUser.accessibleApps}
         activeAppId="stocks"
         userEmail={authUser.email}
+        userPhotoURL={authUser.photoURL}
+        userDisplayName={authUser.displayName}
         onSignOut={authUser.signOut}
         logo={
           <img
