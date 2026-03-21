@@ -1,5 +1,19 @@
 import { useState, useCallback } from 'react';
-import { GlobalNav } from '@haderach/shared-ui';
+import {
+  GlobalNav,
+  SidebarProvider,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarRail,
+  SidebarInset,
+  SidebarTrigger,
+  Separator,
+} from '@haderach/shared-ui';
 import { Controls } from './Controls';
 import { PriceChart } from './PriceChart';
 import { PriceTable } from './PriceTable';
@@ -24,6 +38,7 @@ export function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [noData, setNoData] = useState<string | null>(null);
+  const [view, setView] = useState<"prices" | "watchlist">("prices");
 
   const tickerLabel =
     TICKERS.find((t) => t.value === ticker)?.label ?? ticker;
@@ -78,7 +93,7 @@ export function App() {
   const authUser = useAuthUser();
 
   return (
-    <div className="app">
+    <div className="app-shell">
       <GlobalNav
         apps={authUser.accessibleApps}
         activeAppId="stocks"
@@ -94,32 +109,72 @@ export function App() {
           />
         }
       />
-      <div className="top-pane">
-        <div className="container">
-          <h1>Closing Prices</h1>
-          <Controls
-            ticker={ticker}
-            dateFrom={dateFrom}
-            dateTo={dateTo}
-            loading={loading}
-            onTickerChange={setTicker}
-            onDateFromChange={setDateFrom}
-            onDateToChange={setDateTo}
-            onFetch={handleFetch}
-          />
-          {error && <div className="error">{error}</div>}
-          {rows.length > 0 && (
-            <PriceChart rows={rows} tickerLabel={tickerLabel} />
-          )}
-        </div>
-      </div>
 
-      <div className="bottom-pane">
-        <div className="container">
-          {noData && <p className="no-data">{noData}</p>}
-          <PriceTable rows={rows} />
-        </div>
-      </div>
+      <SidebarProvider className="min-h-0 flex-1">
+        <Sidebar collapsible="offcanvas">
+          <SidebarContent>
+            <SidebarGroup className="pt-14">
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton isActive={view === "watchlist"} onClick={() => setView("watchlist")}>
+                    Watchlist
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton isActive={view === "prices"} onClick={() => setView("prices")}>
+                    Prices
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+
+            {view === "prices" && (
+              <SidebarGroup>
+                <SidebarGroupContent>
+                  <Controls
+                    ticker={ticker}
+                    dateFrom={dateFrom}
+                    dateTo={dateTo}
+                    loading={loading}
+                    onTickerChange={setTicker}
+                    onDateFromChange={setDateFrom}
+                    onDateToChange={setDateTo}
+                    onFetch={handleFetch}
+                  />
+                  {error && <div className="error">{error}</div>}
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
+          </SidebarContent>
+
+          <SidebarRail />
+        </Sidebar>
+
+        <SidebarInset>
+          <header className="flex h-12 items-center gap-2 border-b px-4">
+            <SidebarTrigger />
+            <Separator orientation="vertical" className="h-4" />
+            <h1 className="text-lg font-semibold">
+              Commodity Price Management
+            </h1>
+          </header>
+
+          <div className="display-panel">
+            {view === "prices" && (
+              <>
+                {noData && <p className="no-data">{noData}</p>}
+                {rows.length > 0 && (
+                  <PriceChart rows={rows} tickerLabel={tickerLabel} />
+                )}
+                <PriceTable rows={rows} />
+              </>
+            )}
+            {view === "watchlist" && (
+              <p className="no-data">No watchlist items yet.</p>
+            )}
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
     </div>
   );
 }
