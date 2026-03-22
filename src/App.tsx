@@ -15,8 +15,7 @@ import {
   Separator,
 } from '@haderach/shared-ui';
 import { Controls } from './Controls';
-import { PriceChart } from './PriceChart';
-import { PriceTable } from './PriceTable';
+import { PriceDataView } from './PriceDataView';
 import { useAuthUser } from './auth/AuthUserContext';
 import { TICKERS } from './types';
 import type { FxRow, FxRangeResponse, FxErrorResponse } from './types';
@@ -53,8 +52,6 @@ export function App() {
       return;
     }
 
-    setError(null);
-    setNoData(null);
     setRows([]);
     setLoading(true);
 
@@ -163,10 +160,7 @@ export function App() {
             {view === "prices" && (
               <>
                 {noData && <p className="no-data">{noData}</p>}
-                {rows.length > 0 && (
-                  <PriceChart rows={rows} tickerLabel={tickerLabel} />
-                )}
-                <PriceTable rows={rows} />
+                <PriceDataView rows={rows} tickerLabel={tickerLabel} />
               </>
             )}
             {view === "watchlist" && (

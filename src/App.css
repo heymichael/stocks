@@ -27,44 +27,6 @@
   margin-top: 0.5rem;
 }
 
-/* Chart */
-.chart-container {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-/* Table */
-.results-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-}
-
-.results-table th,
-.results-table td {
-  text-align: left;
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.results-table thead th {
-  background: var(--color-surface-alt);
-  font-weight: 600;
-  color: var(--color-muted-foreground);
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  letter-spacing: 0.04em;
-}
-
-.results-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
 /* No data */
 .no-data {
   color: var(--color-text-muted);

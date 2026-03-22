@@ -1,23 +1,12 @@
+import { useMemo } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Filler,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@haderach/shared-ui';
+import type { ChartConfig } from '@haderach/shared-ui';
 import type { FxRow } from './types';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Filler,
-);
 
 const currencyFmt = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -32,54 +21,61 @@ interface PriceChartProps {
 }
 
 export function PriceChart({ rows, tickerLabel }: PriceChartProps) {
-  const labels = rows.map((r) => r.date);
-  const data = rows.map((r) => r.close);
-  const min = Math.min(...data);
-  const max = Math.max(...data);
+  const chartConfig = useMemo<ChartConfig>(
+    () => ({
+      close: {
+        label: `${tickerLabel} Close`,
+        color: 'var(--color-chart-line)',
+      },
+    }),
+    [tickerLabel],
+  );
+
+  const domain = useMemo<[number, number]>(() => {
+    const closes = rows.map((r) => r.close);
+    return [Math.min(...closes) - 50, Math.max(...closes) + 50];
+  }, [rows]);
 
   return (
-    <div className="chart-container">
-      <Line
-        data={{
-          labels,
-          datasets: [
-            {
-              label: `${tickerLabel} Close`,
-              data,
-              borderColor: '#0057ff',
-              backgroundColor: 'rgba(0, 87, 255, 0.1)',
-              borderWidth: 2,
-              pointRadius: 4,
-              pointBackgroundColor: '#0057ff',
-              fill: false,
-              tension: 0.1,
-            },
-          ],
-        }}
-        options={{
-          responsive: true,
-          maintainAspectRatio: true,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: (ctx) => currencyFmt.format(Math.round(ctx.parsed.y ?? 0)),
-              },
-            },
-          },
-          scales: {
-            x: { ticks: { maxRotation: 45, autoSkip: true } },
-            y: {
-              min: min - 50,
-              max: max + 50,
-              ticks: {
-                callback: (value) =>
-                  currencyFmt.format(Math.round(Number(value))),
-              },
-            },
-          },
-        }}
-      />
+    <div className="rounded-lg border border-border bg-surface p-4">
+      <ChartContainer config={chartConfig} className="h-[500px] w-full">
+        <LineChart data={rows} accessibilityLayer margin={{ bottom: 20 }}>
+          <CartesianGrid vertical={false} />
+          <XAxis
+            dataKey="date"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={12}
+            angle={-45}
+            textAnchor="end"
+            height={80}
+          />
+          <YAxis
+            domain={domain}
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+            tickFormatter={(v: number) => currencyFmt.format(Math.round(v))}
+          />
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                formatter={(value) =>
+                  currencyFmt.format(Math.round(Number(value)))
+                }
+              />
+            }
+          />
+          <Line
+            dataKey="close"
+            type="linear"
+            stroke="var(--color-close)"
+            strokeWidth={2}
+            dot={{ r: 3, fill: 'var(--color-close)' }}
+            activeDot={{ r: 5 }}
+          />
+        </LineChart>
+      </ChartContainer>
     </div>
   );
 }
