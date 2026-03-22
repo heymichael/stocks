@@ -24,7 +24,7 @@ Browser
 |---------|-------|
 | SPA frontend, CI, artifact publish | This repo (`stocks`) |
 | Cloud Run service code (FastAPI) + Dockerfile | This repo (`stocks/service/`) |
-| Shared UI components (GlobalNav, Sidebar, primitives) | `haderach-home` (`@haderach/shared-ui`) |
+| Shared UI components (GlobalNav, Sidebar, DataTable, primitives) | `haderach-home` (`@haderach/shared-ui`) |
 | Firebase Hosting config, routing rewrites, deploy orchestration | `haderach-platform` |
 | Cloud Run deployment, secret management | Platform / ops |
 
@@ -42,9 +42,9 @@ stocks/
 │   ├── App.css           # Shell layout and sidebar positioning
 │   ├── Controls.tsx      # Date/ticker controls (embedded in Sidebar)
 │   ├── PriceDataView.tsx # Tabbed container (Chart | Table toggle)
-│   ├── PriceChart.tsx    # Recharts line chart via shared-ui ChartContainer
-│   ├── PriceTable.tsx    # TanStack DataTable with sort + CSV download
-│   ├── price-columns.tsx # Column definitions for TanStack Table
+│   ├── PriceChart.tsx    # Recharts line chart (ResizeObserver-based sizing)
+│   ├── PriceTable.tsx    # Thin wrapper passing columns + data to shared DataTable
+│   ├── price-columns.tsx # Column definitions (ColumnDef) for the price table
 │   ├── index.css         # App theme tokens + sidebar tokens
 │   ├── main.tsx
 │   ├── types.ts
@@ -84,7 +84,8 @@ The SPA uses shared components from `@haderach/shared-ui` (consumed via `file:` 
 
 - **GlobalNav** — cross-app top navigation bar (logo, apps dropdown, user avatar). Positioned at the top of `.app-shell`.
 - **Sidebar** — collapsible left navigation panel (`collapsible="offcanvas"`). Positioned below GlobalNav using `--header-height` offset in `App.css`.
-- **Table / Tabs / ChartContainer** — shadcn primitives used by the data display components.
+- **DataTable** — generic sortable data table with optional CSV download (TanStack Table + Table primitives). `PriceTable` passes column defs and data; all wiring is in shared-ui.
+- **Table / Tabs** — shadcn primitives used by the data display components.
 - **Button** — used in table column sort headers and CSV download action.
 
 Layout hierarchy (in `App.tsx`):
@@ -106,8 +107,8 @@ Layout hierarchy (in `App.tsx`):
 
 ### Data display stack
 
-- **Charting:** Recharts via shadcn `ChartContainer` / `ChartTooltip` (replaced Chart.js)
-- **Tables:** TanStack Table (headless) rendered with shadcn `Table` primitives (replaced plain HTML table)
+- **Charting:** Recharts `LineChart` with custom `ResizeObserver`-based container sizing and inline tooltip (replaced Chart.js; does not use shadcn `ChartContainer`)
+- **Tables:** `DataTable` from `@haderach/shared-ui` (TanStack Table + shadcn primitives). This app provides column definitions and data only; sorting and CSV download are handled by the shared component.
 - **Tabs:** shadcn `Tabs` (Radix-based) for Chart/Table view toggle
 
 Navigation is state-driven (`view` state variable), not URL-routed. The `GlobalNav` receives accessible apps from the RBAC system via `AuthUserContext`.

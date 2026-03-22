@@ -1,0 +1,50 @@
+---
+description: Convention for mocking API data during local development without a running backend
+globs:
+  - src/App.tsx
+---
+
+# Dev data mocking (interim — until task #040)
+
+When the backend API service is not running locally and you need to test UI components with data, use an `import.meta.env.DEV` guard inside the fetch handler to simulate the async flow.
+
+## Pattern
+
+```ts
+const handleFetch = useCallback(async () => {
+  // ... validation ...
+
+  setError(null);
+  setNoData(null);
+  setRows([]);
+  setLoading(true);
+
+  if (import.meta.env.DEV) {
+    await new Promise((r) => setTimeout(r, 300));
+    setRows([
+      { date: '2026-03-16', close: 3012.40 },
+      { date: '2026-03-17', close: 3025.80 },
+      // ... more rows
+    ]);
+    setLoading(false);
+    return;
+  }
+
+  // real fetch logic below...
+}, [ticker, dateFrom, dateTo]);
+```
+
+## Why this pattern
+
+- **Tree-shaken in production** — Vite removes `import.meta.env.DEV` branches from production builds.
+- **Exercises the real async path** — data arrives after a simulated delay, so loading states and layout/sizing issues surface the same way they do in production.
+- **Same state transitions** — goes through loading → data (or error), matching the real flow.
+
+## What NOT to do
+
+- Do NOT seed mock data into `useState` initial state. It ships to production if you forget to revert, renders synchronously (masking async layout bugs), and bypasses loading/error states.
+- Do NOT leave the guard in committed code. Add it for local testing, then revert before committing.
+
+## Future
+
+Task **#040 — Add MSW dev fixture for stocks API mocking** replaces this with a proper Mock Service Worker setup that intercepts fetch at the network level. Once that task is done, delete this rule.

@@ -1,4 +1,4 @@
-import type { ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef } from '@haderach/shared-ui';
 import { ArrowUpDown } from 'lucide-react';
 import { Button } from '@haderach/shared-ui';
 import type { FxRow } from './types';
