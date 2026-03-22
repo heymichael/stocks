@@ -52,6 +52,8 @@ export function App() {
       return;
     }
 
+    setError(null);
+    setNoData(null);
     setRows([]);
     setLoading(true);
 
