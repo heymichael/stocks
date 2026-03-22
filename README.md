@@ -9,10 +9,18 @@ FX closing-price viewer for precious metals. Part of the [haderach](https://hade
 
 ```
 stocks/
-├── .cursor/rules/        # Cursor AI conventions
-├── .github/              # PR template, workflows (deferred)
+├── .cursor/
+│   ├── rules/            # Cursor AI conventions
+│   └── skills/           # AI brand/token governance
+├── .github/
+│   ├── pull_request_template.md
+│   └── workflows/
+│       └── publish-artifact.yml  # Build, package, upload to GCS on push to main
 ├── docs/                 # Internal docs (not served)
 │   └── architecture.md
+├── scripts/              # Build and publish scripts
+│   ├── package-artifacts.sh   # Tar dist/ + checksums
+│   └── generate-manifest.mjs # Produce manifest.json for platform contract
 ├── service/              # Cloud Run API service
 │   ├── app.py
 │   ├── Dockerfile
@@ -25,17 +33,20 @@ stocks/
 │   │   └── runtimeConfig.ts
 │   ├── App.tsx           # Root component (GlobalNav + Sidebar layout)
 │   ├── App.css           # Shell layout and sidebar positioning
-│   ├── Controls.tsx
-│   ├── PriceChart.tsx
-│   ├── PriceTable.tsx
+│   ├── Controls.tsx      # Date/ticker controls (embedded in Sidebar)
+│   ├── PriceDataView.tsx # Tabbed container (Chart | Table toggle)
+│   ├── PriceChart.tsx    # Recharts line chart (ResizeObserver-based sizing)
+│   ├── PriceTable.tsx    # Thin wrapper passing columns + data to shared DataTable
+│   ├── price-columns.tsx # Column definitions (ColumnDef) for the price table
 │   ├── index.css         # App theme + sidebar tokens
 │   ├── types.ts
 │   ├── vite-env.d.ts
 │   └── main.tsx
+├── eslint.config.js
 ├── firebase.json         # Local dev config
+├── index.html
 ├── package.json
-├── vite.config.ts
-└── index.html
+└── vite.config.ts
 ```
 
 ## Local development
