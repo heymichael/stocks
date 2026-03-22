@@ -2,7 +2,7 @@
 
 FX closing-price viewer for precious metals. Part of the [haderach](https://haderach.ai) platform.
 
-- **Frontend:** React + Vite SPA served at `/stocks/` via Firebase Hosting
+- **Frontend:** React + Vite SPA served at `/stocks/` via Firebase Hosting. Uses `@haderach/shared-ui` for GlobalNav, Sidebar, and design tokens.
 - **Backend:** FastAPI service on Cloud Run (`stocks-api`), proxies the Massive API to protect the API key
 
 ## Repo layout
@@ -19,13 +19,16 @@ stocks/
 │   └── requirements.txt
 ├── src/                  # React SPA source
 │   ├── auth/             # Platform-delegated auth gate (RBAC)
-│   │   ├── accessPolicy.ts   # Role fetch and permission check
+│   │   ├── accessPolicy.ts    # Role fetch and permission check
 │   │   ├── AuthGate.tsx       # Redirects to platform for sign-in
+│   │   ├── AuthUserContext.ts # React context for authenticated user state
 │   │   └── runtimeConfig.ts
-│   ├── App.tsx
+│   ├── App.tsx           # Root component (GlobalNav + Sidebar layout)
+│   ├── App.css           # Shell layout and sidebar positioning
 │   ├── Controls.tsx
 │   ├── PriceChart.tsx
 │   ├── PriceTable.tsx
+│   ├── index.css         # App theme + sidebar tokens
 │   ├── types.ts
 │   ├── vite-env.d.ts
 │   └── main.tsx

@@ -24,6 +24,7 @@ Browser
 |---------|-------|
 | SPA frontend, CI, artifact publish | This repo (`stocks`) |
 | Cloud Run service code (FastAPI) + Dockerfile | This repo (`stocks/service/`) |
+| Shared UI components (GlobalNav, Sidebar, primitives) | `haderach-home` (`@haderach/shared-ui`) |
 | Firebase Hosting config, routing rewrites, deploy orchestration | `haderach-platform` |
 | Cloud Run deployment, secret management | Platform / ops |
 
@@ -33,11 +34,19 @@ Browser
 stocks/
 ├── src/                  # React + Vite SPA (TypeScript)
 │   ├── auth/             # Firebase Auth gate (platform-delegated sign-in)
-│   │   ├── accessPolicy.ts   # RBAC role fetch and permission check
+│   │   ├── accessPolicy.ts    # RBAC role fetch and permission check
 │   │   ├── AuthGate.tsx       # Auth gate component (redirects to platform for sign-in)
 │   │   ├── AuthUserContext.ts # React context for authenticated user state
 │   │   └── runtimeConfig.ts   # Firebase config from VITE_* env vars
-│   └── ...
+│   ├── App.tsx           # Root component (GlobalNav + Sidebar layout)
+│   ├── App.css           # Shell layout and sidebar positioning
+│   ├── Controls.tsx      # Date/ticker controls (embedded in Sidebar)
+│   ├── PriceChart.tsx
+│   ├── PriceTable.tsx
+│   ├── index.css         # App theme tokens + sidebar tokens
+│   ├── main.tsx
+│   ├── types.ts
+│   └── vite-env.d.ts
 ├── service/              # Cloud Run FastAPI service
 │   ├── app.py
 │   ├── Dockerfile
@@ -66,6 +75,36 @@ stocks/
 |------|--------|-------|
 | `/stocks/` | Firebase Hosting → SPA `index.html` | Client-side routing |
 | `/stocks/api/**` | Firebase Hosting rewrite → Cloud Run `stocks-api` | API proxy |
+
+## UI architecture
+
+The SPA uses two shared components from `@haderach/shared-ui` (consumed via `file:` protocol from `../haderach-home/packages/shared-ui`):
+
+- **GlobalNav** — cross-app top navigation bar (logo, apps dropdown, user avatar). Positioned at the top of `.app-shell`.
+- **Sidebar** — collapsible left navigation panel (`collapsible="offcanvas"`). Positioned below GlobalNav using `--header-height` offset in `App.css`.
+
+Layout hierarchy (in `App.tsx`):
+
+```
+.app-shell (flex column, full viewport)
+├── GlobalNav (fixed top bar)
+└── SidebarProvider (flex-1)
+    ├── Sidebar (left nav)
+    │   ├── Watchlist (view toggle)
+    │   ├── Prices (view toggle)
+    │   └── Controls (date/ticker, shown when view=prices)
+    └── SidebarInset (main content)
+        ├── SidebarTrigger (hamburger)
+        └── PriceChart / PriceTable / Watchlist content
+```
+
+Navigation is state-driven (`view` state variable), not URL-routed. The `GlobalNav` receives accessible apps from the RBAC system via `AuthUserContext`.
+
+### Sidebar tokens
+
+Apps using the shared Sidebar must define `sidebar-*` tokens in `src/index.css` under `@theme`. These are Tier 2 (app-specific) tokens:
+
+`sidebar`, `sidebar-foreground`, `sidebar-primary`, `sidebar-primary-foreground`, `sidebar-accent`, `sidebar-accent-foreground`, `sidebar-border`, `sidebar-ring`.
 
 ## Build and deploy flow
 
