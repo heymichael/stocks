@@ -38,7 +38,7 @@ export function PriceChart({ rows, tickerLabel }: PriceChartProps) {
 
   return (
     <div className="rounded-lg border border-border bg-surface p-4">
-      <ChartContainer config={chartConfig} className="h-[500px] w-full">
+      <ChartContainer config={chartConfig} className="aspect-auto h-[500px] w-full">
         <LineChart data={rows} accessibilityLayer margin={{ bottom: 20 }}>
           <CartesianGrid vertical={false} />
           <XAxis
