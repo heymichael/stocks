@@ -41,8 +41,10 @@ stocks/
 │   ├── App.tsx           # Root component (GlobalNav + Sidebar layout)
 │   ├── App.css           # Shell layout and sidebar positioning
 │   ├── Controls.tsx      # Date/ticker controls (embedded in Sidebar)
-│   ├── PriceChart.tsx
-│   ├── PriceTable.tsx
+│   ├── PriceDataView.tsx # Tabbed container (Chart | Table toggle)
+│   ├── PriceChart.tsx    # Recharts line chart via shared-ui ChartContainer
+│   ├── PriceTable.tsx    # TanStack DataTable with sort + CSV download
+│   ├── price-columns.tsx # Column definitions for TanStack Table
 │   ├── index.css         # App theme tokens + sidebar tokens
 │   ├── main.tsx
 │   ├── types.ts
@@ -78,10 +80,12 @@ stocks/
 
 ## UI architecture
 
-The SPA uses two shared components from `@haderach/shared-ui` (consumed via `file:` protocol from `../haderach-home/packages/shared-ui`):
+The SPA uses shared components from `@haderach/shared-ui` (consumed via `file:` protocol from `../haderach-home/packages/shared-ui`):
 
 - **GlobalNav** — cross-app top navigation bar (logo, apps dropdown, user avatar). Positioned at the top of `.app-shell`.
 - **Sidebar** — collapsible left navigation panel (`collapsible="offcanvas"`). Positioned below GlobalNav using `--header-height` offset in `App.css`.
+- **Table / Tabs / ChartContainer** — shadcn primitives used by the data display components.
+- **Button** — used in table column sort headers and CSV download action.
 
 Layout hierarchy (in `App.tsx`):
 
@@ -95,8 +99,16 @@ Layout hierarchy (in `App.tsx`):
     │   └── Controls (date/ticker, shown when view=prices)
     └── SidebarInset (main content)
         ├── SidebarTrigger (hamburger)
-        └── PriceChart / PriceTable / Watchlist content
+        └── PriceDataView (tabbed Chart / Table toggle)
+            ├── PriceChart (Recharts line chart)
+            └── PriceTable (TanStack DataTable, sortable, CSV download)
 ```
+
+### Data display stack
+
+- **Charting:** Recharts via shadcn `ChartContainer` / `ChartTooltip` (replaced Chart.js)
+- **Tables:** TanStack Table (headless) rendered with shadcn `Table` primitives (replaced plain HTML table)
+- **Tabs:** shadcn `Tabs` (Radix-based) for Chart/Table view toggle
 
 Navigation is state-driven (`view` state variable), not URL-routed. The `GlobalNav` receives accessible apps from the RBAC system via `AuthUserContext`.
 
