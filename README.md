@@ -42,10 +42,17 @@ stocks/
 │   ├── types.ts
 │   ├── vite-env.d.ts
 │   └── main.tsx
+├── .env.example
+├── .firebaserc
+├── .gitignore
 ├── eslint.config.js
-├── firebase.json         # Local dev config
+├── firebase.json         # Hosting config (headers, rewrites, emulator)
 ├── index.html
+├── package-lock.json
 ├── package.json
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
 └── vite.config.ts
 ```
 

@@ -66,9 +66,19 @@ stocks/
 │   ├── pull_request_template.md
 │   └── workflows/
 │       └── publish-artifact.yml  # Build, package, upload to GCS on push to main
+├── .env.example
+├── .firebaserc
+├── .gitignore
+├── eslint.config.js
+├── firebase.json         # Hosting config (headers, rewrites, emulator)
+├── index.html
+├── package-lock.json
+├── package.json
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
 ├── vite.config.ts        # base: /stocks/, proxy for local dev
-├── firebase.json         # Local hosting emulator config
-└── package.json
+└── README.md
 ```
 
 ## Routing
@@ -160,7 +170,7 @@ Config is read from `VITE_FIREBASE_*` env vars at build time (see `.env.example`
 
 ## Security
 
-- Default `noindex, nofollow, noarchive` on all responses
+- Default `noindex, nofollow, noarchive` on SPA and Firebase Hosting responses
 - API key never exposed to client; all Massive API calls go through the Cloud Run proxy
 - Cloud Run service uses Secret Manager for `MASSIVE_API_KEY`
 - Firebase Auth gate restricts SPA access to users with appropriate RBAC roles
