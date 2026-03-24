@@ -160,6 +160,9 @@ sign-in directly.
 - **Authorization:** Role-based access control (RBAC). User roles are stored in
   Firestore `users/{email}` documents. Access is granted if the user holds any
   role in `APP_GRANTING_ROLES['stocks']` (`admin`, `member`, `stocks_member`).
+- App catalog and RBAC role mappings (`APP_CATALOG`, `APP_GRANTING_ROLES`,
+  `hasAppAccess`, `getAccessibleApps`) are imported from `@haderach/shared-ui`
+  — this app does not maintain local copies.
 - **Unauthorized:** Access-denied screen with sign-out option.
 - **Bypass:** `VITE_AUTH_BYPASS=true` or `?authBypass=1` query param skips auth (local dev).
 - **Persistence:** `browserLocalPersistence` — sessions survive tab close (shared
