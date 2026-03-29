@@ -41,13 +41,13 @@ export function PriceToolbar({
   onDownload,
 }: PriceToolbarProps) {
   return (
-    <div className="flex flex-wrap items-end gap-4 border-b border-border px-4 py-3">
-      <div className="flex flex-col gap-1 min-w-[200px]">
-        <label className="text-xs font-medium text-muted-foreground">
+    <div className="flex flex-wrap items-end gap-3 border-b border-border px-4 py-2">
+      <div className="flex flex-col gap-0.5 min-w-[160px] max-w-[200px]">
+        <label className="text-[0.65rem] font-medium text-muted-foreground">
           Ticker
         </label>
         <Select value={ticker} onValueChange={onTickerChange}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -61,29 +61,29 @@ export function PriceToolbar({
       </div>
 
       <div className="flex items-end gap-2">
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-muted-foreground">
+        <div className="flex flex-col gap-0.5">
+          <label className="text-[0.65rem] font-medium text-muted-foreground">
             From
           </label>
           <Input
             type="date"
-            className="w-[160px]"
+            className="w-[140px] text-xs"
             value={dateFrom}
             onChange={(e) => onDateFromChange(e.target.value)}
           />
         </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-muted-foreground">
+        <div className="flex flex-col gap-0.5">
+          <label className="text-[0.65rem] font-medium text-muted-foreground">
             To
           </label>
           <Input
             type="date"
-            className="w-[160px]"
+            className="w-[140px] text-xs"
             value={dateTo}
             onChange={(e) => onDateToChange(e.target.value)}
           />
         </div>
-        <Button onClick={onFetch} disabled={loading} size="default">
+        <Button onClick={onFetch} disabled={loading} size="sm">
           {loading ? 'Loading…' : 'Fetch'}
         </Button>
       </div>
