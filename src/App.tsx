@@ -37,7 +37,7 @@ export function App() {
   const [viewMode, setViewMode] = useState<PriceViewMode>('chart');
 
   const [railExpanded, setRailExpanded] = useState(true);
-  const [chatOpen, setChatOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(true);
   const [detailPane, setDetailPane] = useState<'analytics' | 'data' | null>('analytics');
 
   const paneRef = useRef<PaneLayoutHandle>(null);
