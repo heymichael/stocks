@@ -117,6 +117,7 @@ export function AuthGate({ children }: AuthGateProps) {
           accessibleApps,
           accessibleAdminApps,
           signOut: signOutCurrentUser,
+          getIdToken: () => user?.getIdToken() ?? Promise.reject(new Error('No user')),
         }}
       >
         {children}
