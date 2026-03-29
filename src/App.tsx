@@ -1,20 +1,15 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import {
-  GlobalNav,
-  SidebarProvider,
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarRail,
-  SidebarInset,
-  SidebarTrigger,
-  Separator,
+  AppRail,
+  PaneToolbar,
+  PaneLayout,
+  ChatPanel,
 } from '@haderach/shared-ui';
-import { Controls } from './Controls';
+import type { PaneLayoutHandle, PaneId } from '@haderach/shared-ui';
+import { Loader2 } from 'lucide-react';
+
+import { PriceToolbar } from './PriceToolbar';
+import type { PriceViewMode } from './PriceToolbar';
 import { PriceDataView } from './PriceDataView';
 import { useAuthUser } from './auth/AuthUserContext';
 import { TICKERS } from './types';
@@ -30,6 +25,8 @@ function weekAgoISO(): string {
 }
 
 export function App() {
+  const authUser = useAuthUser();
+
   const [ticker, setTicker] = useState(TICKERS[0].value);
   const [dateFrom, setDateFrom] = useState(weekAgoISO);
   const [dateTo, setDateTo] = useState(todayISO);
@@ -37,7 +34,13 @@ export function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [noData, setNoData] = useState<string | null>(null);
-  const [view, setView] = useState<"prices" | "watchlist">("prices");
+  const [viewMode, setViewMode] = useState<PriceViewMode>('chart');
+
+  const [railExpanded, setRailExpanded] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [detailPane, setDetailPane] = useState<'analytics' | 'data' | null>('analytics');
+
+  const paneRef = useRef<PaneLayoutHandle>(null);
 
   const tickerLabel =
     TICKERS.find((t) => t.value === ticker)?.label ?? ticker;
@@ -89,88 +92,105 @@ export function App() {
     }
   }, [ticker, dateFrom, dateTo]);
 
-  const authUser = useAuthUser();
+  const handlePaneToggle = useCallback((id: PaneId) => {
+    paneRef.current?.togglePane(id);
+  }, []);
+
+  const handleLayoutChange = useCallback((chat: boolean, detail: 'analytics' | 'data' | null) => {
+    setChatOpen(chat);
+    setDetailPane(detail);
+  }, []);
+
+  const handleDownloadCsv = useCallback(() => {
+    if (rows.length === 0) return;
+    const header = 'date,close';
+    const csvRows = rows.map((r) => `${r.date},${r.close}`);
+    const csv = [header, ...csvRows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'prices.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [rows]);
 
   return (
     <div className="app-shell">
-      <GlobalNav
+      <AppRail
         apps={authUser.accessibleApps}
         activeAppId="stocks"
+        expanded={railExpanded}
+        onToggle={() => setRailExpanded((e) => !e)}
         userEmail={authUser.email}
         userPhotoURL={authUser.photoURL}
         userDisplayName={authUser.displayName}
         onSignOut={authUser.signOut}
-        logo={
-          <img
-            className="h-12 w-auto"
-            src="/assets/landing/logo.svg"
-            alt="Haderach"
-          />
-        }
       />
 
-      <SidebarProvider className="min-h-0 flex-1">
-        <Sidebar collapsible="offcanvas">
-          <SidebarContent>
-            <SidebarGroup className="pt-14">
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton isActive={view === "watchlist"} onClick={() => setView("watchlist")}>
-                    Watchlist
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton isActive={view === "prices"} onClick={() => setView("prices")}>
-                    Prices
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroup>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <PaneToolbar
+          activePanes={{
+            chat: chatOpen,
+            analytics: detailPane === 'analytics',
+            data: detailPane === 'data',
+          }}
+          onPaneToggle={handlePaneToggle}
+        />
 
-            {view === "prices" && (
-              <SidebarGroup>
-                <SidebarGroupContent>
-                  <Controls
-                    ticker={ticker}
-                    dateFrom={dateFrom}
-                    dateTo={dateTo}
-                    loading={loading}
-                    onTickerChange={setTicker}
-                    onDateFromChange={setDateFrom}
-                    onDateToChange={setDateTo}
-                    onFetch={handleFetch}
-                  />
-                  {error && <div className="error">{error}</div>}
-                </SidebarGroupContent>
-              </SidebarGroup>
-            )}
-          </SidebarContent>
-
-          <SidebarRail />
-        </Sidebar>
-
-        <SidebarInset>
-          <header className="flex h-12 items-center gap-2 border-b px-4">
-            <SidebarTrigger />
-            <Separator orientation="vertical" className="h-4" />
-            <h1 className="text-lg font-semibold">
-              Commodity Price Management
-            </h1>
-          </header>
-
-          <div className="display-panel">
-            {view === "prices" && (
-              <>
+        <PaneLayout
+          ref={paneRef}
+          chatOpen={chatOpen}
+          detailPane={detailPane}
+          onLayoutChange={handleLayoutChange}
+          chatContent={
+            <ChatPanel
+              mode="panel"
+              disabled
+              appContext="stocks"
+              placeholderMessage="Chat capabilities coming soon."
+            />
+          }
+          analyticsContent={
+            <div className="flex flex-1 min-h-0 flex-col p-2">
+              <PriceToolbar
+                ticker={ticker}
+                dateFrom={dateFrom}
+                dateTo={dateTo}
+                loading={loading}
+                viewMode={viewMode}
+                onTickerChange={setTicker}
+                onDateFromChange={setDateFrom}
+                onDateToChange={setDateTo}
+                onFetch={handleFetch}
+                onViewModeChange={setViewMode}
+                onDownload={handleDownloadCsv}
+              />
+              {error && (
+                <div className="px-4 pt-2 text-sm text-red-600">{error}</div>
+              )}
+              <div className="flex flex-1 min-h-0 flex-col px-4">
+                {loading && (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                )}
                 {noData && <p className="no-data">{noData}</p>}
-                <PriceDataView rows={rows} tickerLabel={tickerLabel} />
-              </>
-            )}
-            {view === "watchlist" && (
-              <p className="no-data">No watchlist items yet.</p>
-            )}
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
+                {!loading && (
+                  <PriceDataView rows={rows} tickerLabel={tickerLabel} viewMode={viewMode} />
+                )}
+              </div>
+            </div>
+          }
+          dataContent={
+            <div className="flex flex-1 items-center justify-center p-8">
+              <p className="text-sm text-muted-foreground italic">
+                Data view coming soon.
+              </p>
+            </div>
+          }
+        />
+      </div>
     </div>
   );
 }

@@ -8,5 +8,5 @@ interface PriceTableProps {
 
 export function PriceTable({ rows }: PriceTableProps) {
   if (rows.length === 0) return null;
-  return <DataTable columns={priceColumns} data={rows} csvFilename="prices.csv" />;
+  return <DataTable columns={priceColumns} data={rows} />;
 }
