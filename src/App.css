@@ -1,30 +1,7 @@
 .app-shell {
-  --header-height: calc(3rem + 1.5rem + 1px);
   height: 100vh;
   display: flex;
-  flex-direction: column;
   overflow: hidden;
-}
-
-/* Offset the fixed sidebar below the GlobalNav */
-.app-shell [data-slot="sidebar-container"] {
-  top: var(--header-height);
-  height: calc(100svh - var(--header-height));
-}
-
-.display-panel {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.5rem;
-}
-
-/* Error */
-.error {
-  background: var(--color-error-bg);
-  color: var(--color-error);
-  padding: 0.75rem 1rem;
-  border-radius: 4px;
-  margin-top: 0.5rem;
 }
 
 /* No data */
@@ -32,4 +9,26 @@
   color: var(--color-text-muted);
   font-style: italic;
   padding: 0.5rem 0;
+}
+
+/* Chat markdown */
+.chat-markdown p {
+  margin: 0.25em 0;
+}
+.chat-markdown p:first-child {
+  margin-top: 0;
+}
+.chat-markdown p:last-child {
+  margin-bottom: 0;
+}
+.chat-markdown ul,
+.chat-markdown ol {
+  margin: 0.25em 0;
+  padding-left: 1.25em;
+}
+.chat-markdown li {
+  margin: 0.15em 0;
+}
+.chat-markdown strong {
+  font-weight: 600;
 }
