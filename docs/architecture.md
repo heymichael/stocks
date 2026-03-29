@@ -155,19 +155,24 @@ The Vite dev server proxies `/stocks/api/*` to `localhost:5001` where the FastAP
 Authentication is centralized at the platform level. This app does not handle
 sign-in directly.
 
-- **Sign-in:** Handled by the platform landing page at `haderach.ai/`. If no
-  Firebase Auth session exists, the app redirects to `/?returnTo=/stocks/`.
+- **Sign-in (production):** Handled by the platform landing page at `haderach.ai/`.
+  If no Firebase Auth session exists, the app redirects to `/?returnTo=/stocks/`.
+- **Sign-in (local dev):** When `import.meta.env.DEV` is true and no session exists,
+  the app shows a dev-only "Sign in with Google" button instead of redirecting,
+  allowing authentication directly on the app's origin.
 - **Authorization:** Role-based access control (RBAC). User roles are stored in
-  Firestore `users/{email}` documents. Access is granted if the user holds any
-  role in `APP_GRANTING_ROLES['stocks']` (`admin`, `member`, `stocks_member`).
-- App catalog and RBAC role mappings (`APP_CATALOG`, `APP_GRANTING_ROLES`,
-  `hasAppAccess`, `getAccessibleApps`) are imported from `@haderach/shared-ui`
-  — this app does not maintain local copies.
+  Firestore `users/{email}` documents and resolved at runtime via `fetchUserDoc`
+  (from `@haderach/shared-ui`), which calls `GET /agent/api/me`. Access is
+  granted if the user holds any role in `APP_GRANTING_ROLES['stocks']`.
+- Auth primitives (`BaseAuthUser`, `fetchUserDoc`, `buildDisplayName`) and RBAC
+  helpers (`APP_CATALOG`, `APP_GRANTING_ROLES`, `hasAppAccess`, `getAccessibleApps`)
+  are imported from `@haderach/shared-ui` — this app does not maintain local copies.
+  `AuthUser` re-exports `BaseAuthUser` directly (no app-specific extensions).
 - **Unauthorized:** Access-denied screen with sign-out option.
 - **Bypass:** `VITE_AUTH_BYPASS=true` or `?authBypass=1` query param skips auth (local dev).
 - **Persistence:** `browserLocalPersistence` — sessions survive tab close (shared
   across all apps on `haderach.ai` via same-origin IndexedDB).
-- **Fail-closed:** If Firestore is unreachable, roles resolve to empty and access is denied.
+- **Fail-closed:** If the agent API is unreachable, roles resolve to empty and access is denied.
 
 Config is read from `VITE_FIREBASE_*` env vars at build time (see `.env.example`).
 
