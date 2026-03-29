@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import {
   AppRail,
+  useRailExpanded,
   PaneToolbar,
   PaneLayout,
   ChatPanel,
@@ -36,7 +37,7 @@ export function App() {
   const [noData, setNoData] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<PriceViewMode>('chart');
 
-  const [railExpanded, setRailExpanded] = useState(true);
+  const [railExpanded, toggleRail] = useRailExpanded();
   const [chatOpen, setChatOpen] = useState(true);
   const [detailPane, setDetailPane] = useState<'analytics' | 'data' | null>('analytics');
 
@@ -121,7 +122,7 @@ export function App() {
         apps={authUser.accessibleApps}
         activeAppId="stocks"
         expanded={railExpanded}
-        onToggle={() => setRailExpanded((e) => !e)}
+        onToggle={toggleRail}
         userEmail={authUser.email}
         userPhotoURL={authUser.photoURL}
         userDisplayName={authUser.displayName}
