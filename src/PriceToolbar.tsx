@@ -1,6 +1,5 @@
 import {
   Button,
-  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -41,13 +40,13 @@ export function PriceToolbar({
   onDownload,
 }: PriceToolbarProps) {
   return (
-    <div className="flex flex-wrap items-end gap-3 border-b border-border px-4 py-2">
-      <div className="flex flex-col gap-0.5 min-w-[160px] max-w-[200px]">
-        <label className="text-[0.65rem] font-medium text-muted-foreground">
+    <div className="flex flex-wrap items-end gap-6 px-4 py-2">
+      <div className="flex flex-col gap-0.5 min-w-[120px]">
+        <label className="text-xs font-medium text-muted-foreground">
           Ticker
         </label>
         <Select value={ticker} onValueChange={onTickerChange}>
-          <SelectTrigger className="w-full text-xs">
+          <SelectTrigger className="h-8 w-full rounded-none border-0 border-b border-border bg-transparent px-0 pb-1 text-xs shadow-none">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -60,30 +59,30 @@ export function PriceToolbar({
         </Select>
       </div>
 
-      <div className="flex items-end gap-2">
+      <div className="flex items-end gap-4">
         <div className="flex flex-col gap-0.5">
-          <label className="text-[0.65rem] font-medium text-muted-foreground">
+          <label className="text-xs font-medium text-muted-foreground">
             From
           </label>
-          <Input
+          <input
             type="date"
-            className="w-[140px] text-xs"
+            className="h-8 w-[120px] border-b border-border bg-transparent pb-1 text-xs outline-none [&::-webkit-calendar-picker-indicator]:h-3.5 [&::-webkit-calendar-picker-indicator]:w-3.5 [&::-webkit-calendar-picker-indicator]:opacity-60"
             value={dateFrom}
             onChange={(e) => onDateFromChange(e.target.value)}
           />
         </div>
         <div className="flex flex-col gap-0.5">
-          <label className="text-[0.65rem] font-medium text-muted-foreground">
+          <label className="text-xs font-medium text-muted-foreground">
             To
           </label>
-          <Input
+          <input
             type="date"
-            className="w-[140px] text-xs"
+            className="h-8 w-[120px] border-b border-border bg-transparent pb-1 text-xs outline-none [&::-webkit-calendar-picker-indicator]:h-3.5 [&::-webkit-calendar-picker-indicator]:w-3.5 [&::-webkit-calendar-picker-indicator]:opacity-60"
             value={dateTo}
             onChange={(e) => onDateToChange(e.target.value)}
           />
         </div>
-        <Button onClick={onFetch} disabled={loading} size="sm">
+        <Button onClick={onFetch} disabled={loading} size="sm" className="text-xs">
           {loading ? 'Loading…' : 'Fetch'}
         </Button>
       </div>

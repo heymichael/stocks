@@ -2,7 +2,7 @@ import { useMemo, useRef, useState, useEffect, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import type { FxRow } from './types';
 
-const CHART_HEIGHT = 500;
+const MIN_CHART_HEIGHT = 400;
 
 const currencyFmt = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -19,10 +19,12 @@ interface PriceChartProps {
 export function PriceChart({ rows, tickerLabel }: PriceChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
 
   const measure = useCallback(() => {
     if (containerRef.current) {
       setWidth(containerRef.current.clientWidth);
+      setHeight(containerRef.current.clientHeight);
     }
   }, []);
 
@@ -40,16 +42,17 @@ export function PriceChart({ rows, tickerLabel }: PriceChartProps) {
     return [Math.min(...closes) - 50, Math.max(...closes) + 50];
   }, [rows]);
 
+  const chartHeight = Math.max(height - 32, MIN_CHART_HEIGHT);
+
   return (
     <div
       ref={containerRef}
-      className="rounded-lg border border-border bg-surface p-4"
-      style={{ minHeight: CHART_HEIGHT }}
+      className="flex-1 min-h-0 p-4"
     >
-      {width > 0 && (
+      {width > 0 && height > 0 && (
         <LineChart
           width={width - 32}
-          height={CHART_HEIGHT}
+          height={chartHeight}
           data={rows}
           margin={{ top: 10, right: 10, bottom: 20, left: 20 }}
         >
@@ -62,14 +65,14 @@ export function PriceChart({ rows, tickerLabel }: PriceChartProps) {
             angle={-45}
             textAnchor="end"
             height={80}
-            fontSize={14}
+            fontSize={12}
           />
           <YAxis
             domain={domain}
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            fontSize={14}
+            fontSize={12}
             tickFormatter={(v: number) => currencyFmt.format(Math.round(v))}
           />
           <Tooltip
@@ -98,3 +101,4 @@ export function PriceChart({ rows, tickerLabel }: PriceChartProps) {
     </div>
   );
 }
+

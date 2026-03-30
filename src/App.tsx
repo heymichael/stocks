@@ -154,32 +154,34 @@ export function App() {
           }
           analyticsContent={
             <div className="flex flex-1 min-h-0 flex-col p-2">
-              <PriceToolbar
-                ticker={ticker}
-                dateFrom={dateFrom}
-                dateTo={dateTo}
-                loading={loading}
-                viewMode={viewMode}
-                onTickerChange={setTicker}
-                onDateFromChange={setDateFrom}
-                onDateToChange={setDateTo}
-                onFetch={handleFetch}
-                onViewModeChange={setViewMode}
-                onDownload={handleDownloadCsv}
-              />
-              {error && (
-                <div className="px-4 pt-2 text-sm text-red-600">{error}</div>
-              )}
-              <div className="flex flex-1 min-h-0 flex-col px-4">
-                {loading && (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                  </div>
+              <div className="flex flex-1 min-h-0 flex-col rounded-xl border border-border bg-card shadow-sm">
+                <PriceToolbar
+                  ticker={ticker}
+                  dateFrom={dateFrom}
+                  dateTo={dateTo}
+                  loading={loading}
+                  viewMode={viewMode}
+                  onTickerChange={setTicker}
+                  onDateFromChange={setDateFrom}
+                  onDateToChange={setDateTo}
+                  onFetch={handleFetch}
+                  onViewModeChange={setViewMode}
+                  onDownload={handleDownloadCsv}
+                />
+                {error && (
+                  <div className="px-4 pt-2 text-sm text-red-600">{error}</div>
                 )}
-                {noData && <p className="no-data">{noData}</p>}
-                {!loading && (
-                  <PriceDataView rows={rows} tickerLabel={tickerLabel} viewMode={viewMode} />
-                )}
+                <div className="flex flex-1 min-h-0 flex-col px-4">
+                  {loading && (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    </div>
+                  )}
+                  {noData && <p className="no-data">{noData}</p>}
+                  {!loading && (
+                    <PriceDataView rows={rows} tickerLabel={tickerLabel} viewMode={viewMode} />
+                  )}
+                </div>
               </div>
             </div>
           }
