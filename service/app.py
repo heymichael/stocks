@@ -4,9 +4,17 @@ from datetime import date as dt_date, datetime, timezone
 
 import httpx
 from fastapi import FastAPI, Query
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-app = FastAPI()
+app = FastAPI(title="Stocks API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://docs.haderach.ai"],
+    allow_methods=["GET"],
+    allow_headers=["*"],
+)
 
 MASSIVE_BASE_URL = "https://api.massive.com/v2/aggs/ticker"
 DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
