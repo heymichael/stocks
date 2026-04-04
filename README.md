@@ -2,7 +2,7 @@
 
 FX closing-price viewer for precious metals. Part of the [haderach](https://haderach.ai) platform.
 
-- **Frontend:** React + Vite SPA served at `/stocks/` via Firebase Hosting. Uses `@haderach/shared-ui` for GlobalNav, Sidebar, and design tokens.
+- **Frontend:** React + Vite SPA served at `/stocks/` via Firebase Hosting. Uses `@haderach/shared-ui` for AppRail, PaneLayout, ChatPanel, DataTable, and design tokens.
 - **Backend:** FastAPI service on Cloud Run (`stocks-api`), proxies the Massive API to protect the API key
 
 ## Repo layout
@@ -10,12 +10,13 @@ FX closing-price viewer for precious metals. Part of the [haderach](https://hade
 ```
 stocks/
 ├── .cursor/
-│   ├── rules/            # Cursor AI conventions
+│   ├── rules/            # Cursor AI conventions (8 rules)
 │   └── skills/           # AI brand/token governance
 ├── .github/
 │   ├── pull_request_template.md
 │   └── workflows/
-│       └── publish-artifact.yml  # Build, package, upload to GCS on push to main
+│       ├── ci.yml                   # PR checks (lint + build)
+│       └── publish-artifact.yml     # Build, package, upload to GCS on push to main
 ├── docs/                 # Internal docs (not served)
 │   └── architecture.md
 ├── scripts/              # Build and publish scripts
@@ -31,9 +32,9 @@ stocks/
 │   │   ├── AuthGate.tsx       # Redirects to platform for sign-in
 │   │   ├── AuthUserContext.ts # React context for authenticated user state
 │   │   └── runtimeConfig.ts
-│   ├── App.tsx           # Root component (GlobalNav + Sidebar layout)
-│   ├── App.css           # Shell layout and sidebar positioning
-│   ├── Controls.tsx      # Date/ticker controls (embedded in Sidebar)
+│   ├── App.tsx           # Root component (AppRail + PaneToolbar + PaneLayout)
+│   ├── App.css           # Shell layout
+│   ├── PriceToolbar.tsx  # Ticker/date controls and view mode toggle
 │   ├── PriceDataView.tsx # Tabbed container (Chart | Table toggle)
 │   ├── PriceChart.tsx    # Recharts line chart (ResizeObserver-based sizing)
 │   ├── PriceTable.tsx    # Thin wrapper passing columns + data to shared DataTable
@@ -68,7 +69,7 @@ npm run dev
 
 Opens at `http://localhost:5173/stocks/`. The Vite dev server proxies `/stocks/api/*` to `localhost:5001`.
 
-Authentication is centralized at the platform level. This app redirects unauthenticated users to the platform landing page for sign-in, then checks RBAC roles from the Firestore `users/{email}` collection. With Firebase config populated and `VITE_AUTH_BYPASS=false`, the Vite dev server serves the platform landing page at `/` (via a dev-only plugin), enabling the full sign-in + RBAC flow locally.
+Authentication is centralized at the platform level. This app redirects unauthenticated users to the platform landing page for sign-in, then checks RBAC roles via `GET /agent/api/me` (Postgres-backed). In local dev (`import.meta.env.DEV`), the app shows a dev-only "Sign in with Google" button instead of redirecting.
 
 To skip the auth gate during local development, set `VITE_AUTH_BYPASS=true` in `.env.local` or append `?authBypass=1` to the URL.
 
