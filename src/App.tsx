@@ -12,10 +12,9 @@ import { Loader2 } from 'lucide-react';
 import { PriceToolbar } from './PriceToolbar';
 import type { PriceViewMode } from './PriceToolbar';
 import { PriceDataView } from './PriceDataView';
-import { useAuthUser } from './auth/AuthUserContext';
+import { useAuthUser } from '@haderach/shared-ui';
 import { TICKERS } from './types';
 import type { FxRow, FxRangeResponse, FxErrorResponse } from './types';
-import './App.css';
 
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
