@@ -5,12 +5,17 @@ alwaysApply: true
 
 # App Boundary Rule
 
-This repository is a single app repository integrated into the haderach platform control plane.
+This repository is the stocks app: a React SPA plus the co-located
+`stocks-api` FastAPI service for market-data access.
 
 - Keep strict separation of concerns:
-  - This repo owns app-local implementation patterns, CI patterns, and artifact publish contracts.
-  - Platform orchestration, promotion, and cross-app routing checks remain outside this repo.
-- Keep app logic and app tests in this repository; do not add platform orchestration logic here.
+  - This repo owns the stocks frontend, the `service/` backend, app-local CI,
+    and artifact publish contracts.
+  - `haderach-platform` owns hosting rewrites, Cloud Run deploy orchestration,
+    and shared infrastructure.
+  - `haderach-home` owns shared UI primitives consumed here.
+- Keep stocks app logic and service tests in this repository; do not add
+  platform orchestration logic here.
 - Keep naming kebab-case for repo/path conventions unless language-specific rules require otherwise.
 - Prefer explicit docs and small config contracts over heavy scripts or premature automation.
 - Use or update docs when behavior/contracts change:

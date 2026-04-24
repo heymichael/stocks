@@ -82,6 +82,9 @@ pip install -r requirements.txt
 MASSIVE_API_KEY=<your-key> uvicorn app:app --port 5001
 ```
 
+Workspace-level Cursor rule coverage is tracked in
+`../haderach-platform/docs/cursor-rule-matrix.md`.
+
 Runs on port 5001. The frontend proxy forwards API calls here during local dev.
 Auto-generated API docs available at `http://localhost:5001/docs`.
 

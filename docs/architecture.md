@@ -4,6 +4,11 @@
 
 Two-component app: a static React SPA served via Firebase Hosting and a FastAPI service running on Cloud Run.
 
+## Cursor Rules
+
+Workspace-level Cursor rule coverage and `alwaysApply` settings are tracked in
+`../haderach-platform/docs/cursor-rule-matrix.md`.
+
 ```
 Browser
   │
