@@ -1,5 +1,6 @@
 ---
 description: Convention for mocking API data during local development without a running backend
+alwaysApply: false
 globs:
   - src/App.tsx
 ---
